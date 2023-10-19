@@ -1,0 +1,19 @@
+
+checker:
+  interval: 10
+  timeout: 20
+
+  websites:
+    - name: Google
+      env: PRO
+      url: https://www.google.com
+      regex: <title[^>]*>([\s\S]+?)<\/title>
+
+    - name: Aiven
+      env: PRO
+      url: https://github.com/
+      regex: <body[^>]*>([\s\S]+?)<\/body>
+
+telegram:
+  token: Your_Bot_Token
+  chat_id: Your_Chat_Id
