@@ -1,0 +1,44 @@
+
+checker:
+  interval: 60
+  timeout: 20
+
+  websites:
+    - name: FG官网
+      env: PRO
+      url: https://fungaming.com/#/home
+      regex: <title[^>]*>([\s\S]+?)<\/title>
+
+    - name: 总控后台
+      env: PRO
+      url: https://m.fungaming.me/~admin
+      regex: <title[^>]*>([\s\S]+?)<\/title>
+
+    - name: 代理后台
+      env: PRO
+      url: https://agent2.fungaming.me/~admin
+      regex: <body[^>]*>([\s\S]+?)<\/body>
+
+    - name: Labby站
+      env: PRO
+      url: https://lobby.fungaming.me/#/
+      regex: <title[^>]*>([\s\S]+?)<\/title>
+
+    - name: 总控后台
+      env: PPRO
+      url: https://m.chichengwl.com/~admin
+      regex: <body[^>]*>([\s\S]+?)<\/body>
+
+    - name: 代理后台
+      env: PPRO
+      url: https://agent2.chichengwl.com/~admin
+      regex: <body[^>]*>([\s\S]+?)<\/body>
+
+    - name: Labby站
+      env: PPRO
+      url: https://lobby.chichengwl.com/#/
+      regex: <body[^>]*>([\s\S]+?)<\/body>
+
+telegram:
+  token: 5441822469:AAFeJt2fVwtQtSPr1OZ7v1h4KqFmD28q3Aw
+  chat_id: 1797044890

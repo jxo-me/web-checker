@@ -18,3 +18,4 @@ cbuild
 temp/
 go.sum
 config_local.yaml
+checker
