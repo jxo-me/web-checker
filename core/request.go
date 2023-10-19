@@ -34,21 +34,25 @@ func fetchWebsite(client *http.Client, site config.Website) (*Response, error) {
 	if site.Regex != "" {
 		content = getContent(site.Regex, bytes)
 	}
+	certificate := "正常"
 	// check ssl certificate expired
 	for _, cert := range resp.TLS.PeerCertificates {
 		if !cert.NotAfter.After(time.Now()) {
 			statusCode = http.StatusBadRequest
 			msg := fmt.Sprintf("Website [%s] certificate has expired: %s", site.Url, cert.NotAfter.Local().Format("2006-01-02 15:04:05"))
 			log.Println(msg)
-			content[0] = []byte("ssl certificate has expired")
-			content[1] = []byte("ssl certificate has expired")
+			content = [][]byte{}
+			content = append(content, []byte("Expired"))
+			content = append(content, []byte(fmt.Sprintf("ssl certificate has expired: %s", cert.NotAfter.Local().Format("2006-01-02 15:04:05"))))
+			certificate = "过期"
 		}
 	}
 
 	return &Response{
-		Website:  site,
-		Code:     statusCode,
-		Duration: elapsed,
-		Content:  content,
+		Website:     site,
+		Code:        statusCode,
+		Duration:    elapsed,
+		Content:     content,
+		Certificate: certificate,
 	}, nil
 }

@@ -21,12 +21,12 @@ type Checker struct {
 }
 
 type Result struct {
-	Name    string  `table:"项目名称"`
-	Env     string  `table:"所属环境"`
-	Address string  `table:"系统地址"`
-	Status  int     `table:"响应状态"`
-	Elapsed float64 `table:"耗时(秒)"`
-	Result  string  `table:"请求结果"`
+	Name        string  `table:"项目名称"`
+	Env         string  `table:"所属环境"`
+	Address     string  `table:"系统地址"`
+	Status      int     `table:"响应状态"`
+	Elapsed     float64 `table:"耗时(秒)"`
+	Certificate string  `table:"SSL证书"`
 }
 
 func (c *Checker) Run() {
@@ -62,13 +62,8 @@ func (c *Checker) check(site config.Website) {
 	if err != nil {
 		log.Printf("unable to fetch the website %s: %v", site.Name, err)
 	}
-	content := "Success"
-	if resp.Code != http.StatusOK {
-		if len(resp.Content) > 1 {
-			content = string(resp.Content[1])
-		}
-	}
-	res := Result{Name: resp.Website.Name, Env: resp.Website.Env, Address: resp.Website.Url, Status: resp.Code, Elapsed: resp.Duration, Result: content}
+
+	res := Result{Name: resp.Website.Name, Env: resp.Website.Env, Address: resp.Website.Url, Status: resp.Code, Elapsed: resp.Duration, Certificate: resp.Certificate}
 
 	for _, f := range c.Processors {
 		err = f(resp)
