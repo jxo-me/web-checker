@@ -9,7 +9,7 @@ checker:
       url: https://www.google.com
       regex: <title[^>]*>([\s\S]+?)<\/title>
 
-    - name: Aiven
+    - name: Github
       env: PRO
       url: https://github.com/
       regex: <body[^>]*>([\s\S]+?)<\/body>
