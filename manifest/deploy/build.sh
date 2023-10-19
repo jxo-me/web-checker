@@ -8,4 +8,4 @@ function build() {
       golang:1.20-alpine sh -c "go mod tidy && go build -o checker cmd/main.go"
 }
 
-build
+build && docker build -f manifest/docker/Dockerfile -t "web-checker" .
