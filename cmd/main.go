@@ -14,7 +14,7 @@ func main() {
 	}
 
 	telegramHook := &hook.TelegramHook{Token: cfg.Telegram.Token, ChatId: cfg.Telegram.ChatId, TimeOut: cfg.Checker.Timeout}
-	err = telegramHook.Notify(cfg.Checker.Websites)
+	err = telegramHook.Notify(cfg.Checker.Websites, cfg.Checker.Interval)
 	if err != nil {
 		log.Fatal(err)
 	}

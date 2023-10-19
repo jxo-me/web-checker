@@ -22,7 +22,7 @@ const Tpl = `🚓️服务异常监控预警‼️‼️‼️
 const NotifyTpl = `🚓️服务预警监控启动
 <pre>%s</pre>
 🔸监控点: %s
-🔸监控IP: %s
+🔸监控点IP: %s
 🔸采样频率: %s
 `
 
@@ -69,7 +69,7 @@ type Notify struct {
 	Ssl     string `table:"证书监控"`
 }
 
-func (h *TelegramHook) Notify(sites []config.Website) error {
+func (h *TelegramHook) Notify(sites []config.Website, interval int) error {
 	var list []Notify
 	for _, site := range sites {
 		list = append(list, Notify{Name: site.Name, Env: site.Env, Address: site.Url, Ssl: "Yes"})
@@ -78,7 +78,7 @@ func (h *TelegramHook) Notify(sites []config.Website) error {
 	if err != nil {
 		return err
 	}
-	text := fmt.Sprintf(NotifyTpl, prettytable.TablePrinter{}.Print(&list), ipResp.Country, ipResp.Ip, "10s")
+	text := fmt.Sprintf(NotifyTpl, prettytable.TablePrinter{}.Print(&list), ipResp.Country, ipResp.Ip, fmt.Sprintf("%ds", interval))
 	// MarkdownV2|HTML|Markdown
 	uri := fmt.Sprintf(TGApi, h.Token)
 	link := fmt.Sprintf("%s?chat_id=%d&parse_mode=HTML&text=%s", uri, h.ChatId, url.QueryEscape(text))
