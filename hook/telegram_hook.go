@@ -17,19 +17,23 @@ const TGApi = "https://api.telegram.org/bot%s/sendMessage" // ?chat_id=%d&text=#
 const Tpl = `🚓️服务异常监控预警‼️‼️‼️
 <pre>%s</pre>
 🔸异常详情: %s
+🔸异常时间: %s
+🔸监控节点: %s
+🔸监控节点IP: %s
 `
 
-const NotifyTpl = `🚓️服务预警监控启动
+const NotifyTpl = `🚓️服务监控预警启动
 <pre>%s</pre>
-🔸监控点: %s
-🔸监控点IP: %s
+🔸监控节点: %s
+🔸监控节点IP: %s
 🔸采样频率: %s
 `
 
 type TelegramHook struct {
-	Token   string `json:"token"`
-	ChatId  int64  `json:"chat_id"`
-	TimeOut int    `json:"time_out"`
+	Token   string   `json:"token"`
+	ChatId  int64    `json:"chat_id"`
+	TimeOut int      `json:"time_out"`
+	LocalIp *core.Ip `json:"local_ip"`
 }
 
 type Response struct {
@@ -70,15 +74,16 @@ type Notify struct {
 }
 
 func (h *TelegramHook) Notify(sites []config.Website, interval int) error {
+	var err error
 	var list []Notify
 	for _, site := range sites {
 		list = append(list, Notify{Name: site.Name, Env: site.Env, Address: site.Url, Ssl: "Yes"})
 	}
-	ipResp, err := core.GetLocation("")
+	h.LocalIp, err = core.GetLocation("")
 	if err != nil {
 		return err
 	}
-	text := fmt.Sprintf(NotifyTpl, prettytable.TablePrinter{}.Print(&list), ipResp.Country, ipResp.Ip, fmt.Sprintf("%ds", interval))
+	text := fmt.Sprintf(NotifyTpl, prettytable.TablePrinter{}.Print(&list), h.LocalIp.Country, h.LocalIp.Ip, fmt.Sprintf("%ds", interval))
 	// MarkdownV2|HTML|Markdown
 	uri := fmt.Sprintf(TGApi, h.Token)
 	link := fmt.Sprintf("%s?chat_id=%d&parse_mode=HTML&text=%s", uri, h.ChatId, url.QueryEscape(text))
@@ -121,7 +126,7 @@ func (h *TelegramHook) Process(resp *core.Response) error {
 			content = resp.Content[1]
 		}
 		res := core.Result{Name: resp.Website.Name, Env: resp.Website.Env, Address: resp.Website.Url, Status: resp.Code, Elapsed: resp.Duration, Certificate: resp.Certificate}
-		text := fmt.Sprintf(Tpl, prettytable.TablePrinter{}.Print(&res), content)
+		text := fmt.Sprintf(Tpl, prettytable.TablePrinter{}.Print(&res), content, time.Now().Format("2006-01-02 15:04:05"), h.LocalIp.Country, h.LocalIp.Ip)
 		// MarkdownV2|HTML|Markdown
 		uri := fmt.Sprintf(TGApi, h.Token)
 		link := fmt.Sprintf("%s?chat_id=%d&parse_mode=HTML&text=%s", uri, h.ChatId, url.QueryEscape(text))

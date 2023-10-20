@@ -6,4 +6,7 @@ run:
 	go run cmd/main.go
 
 build:
-	go build -o checker cmd/main.go
+	chmod a+x manifest/deploy/build.sh && ./manifest/deploy/build.sh
+
+update:
+	docker rm -f web-checker && docker run -d --restart always --name web-checker --net=host web-checker:latest
