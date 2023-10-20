@@ -8,6 +8,7 @@ docker run --rm -i --name checker-build \
   -w /go/src/work \
   golang:1.20-alpine sh -c "go mod tidy && go build -o checker cmd/main.go"
 }
+
 # docker run -d --restart always --name web-checker --net=host web-checker:latest
 function start() {
 docker run -d --restart always \
@@ -23,4 +24,4 @@ function cleanImages() {
   fi
 }
 
-build && docker build -f manifest/docker/Dockerfile -t "web-checker" . && cleanImages
+build && docker build -f manifest/docker/Dockerfile -t "web-checker" .
