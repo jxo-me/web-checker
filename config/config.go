@@ -7,10 +7,13 @@ import (
 )
 
 type Website struct {
-	Name  string `yaml:"name"  json:"name"`
-	Env   string `yaml:"env"  json:"env"`
-	Url   string `yaml:"url"   json:"url"`
-	Regex string `yaml:"regex" json:"regex"`
+	Name    string `yaml:"name"  json:"name"`
+	Env     string `yaml:"env"  json:"env"`
+	Url     string `yaml:"url"   json:"url"`
+	Method  string `yaml:"method"   json:"method"`
+	Body    string `yaml:"body"   json:"body"`
+	Headers string `yaml:"headers"   json:"headers"`
+	Regex   string `yaml:"regex" json:"regex"`
 }
 
 type Checker struct {
