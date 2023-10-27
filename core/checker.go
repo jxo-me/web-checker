@@ -61,17 +61,19 @@ func (c *Checker) check(site config.Website) {
 	resp, err := fetchWebsite(&client, site)
 	if err != nil {
 		log.Printf("unable to fetch the website %s: %v", site.Name, err)
+		//return
 	}
+	if resp != nil {
+		res := Result{Name: resp.Website.Name, Env: resp.Website.Env, Address: resp.Website.Url, Status: resp.Code, Elapsed: resp.Duration, Certificate: resp.Certificate}
 
-	res := Result{Name: resp.Website.Name, Env: resp.Website.Env, Address: resp.Website.Url, Status: resp.Code, Elapsed: resp.Duration, Certificate: resp.Certificate}
-
-	for _, f := range c.Processors {
-		err = f(resp)
-		if err != nil {
-			log.Printf("unable to process response: %v", err)
+		for _, f := range c.Processors {
+			err = f(resp)
+			if err != nil {
+				log.Printf("unable to process response: %v", err)
+			}
 		}
+		c.ListResult = append(c.ListResult, res)
 	}
-	c.ListResult = append(c.ListResult, res)
 }
 
 func getContent(regex string, body []byte) [][]byte {

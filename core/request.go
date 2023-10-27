@@ -46,20 +46,8 @@ func fetchWebsite(client *http.Client, site config.Website) (*Response, error) {
 	resp, err := client.Do(req)
 	elapsed := time.Since(start).Seconds()
 
-	if err != nil {
-		return nil, fmt.Errorf("cannot fetch website %s: %w", site.Name, err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-	statusCode := resp.StatusCode
-	bytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	var content [][]byte
-	if site.Regex != "" {
-		content = getContent(site.Regex, bytes)
-	}
+	statusCode := resp.StatusCode
 	certificate := "正常"
 	// check ssl certificate expired
 	for _, cert := range resp.TLS.PeerCertificates {
@@ -72,6 +60,26 @@ func fetchWebsite(client *http.Client, site config.Website) (*Response, error) {
 			content = append(content, []byte(fmt.Sprintf("ssl certificate has expired: %s", cert.NotAfter.Local().Format("2006-01-02 15:04:05"))))
 			certificate = "过期"
 		}
+	}
+	if err != nil {
+		content = append(content, []byte("Error"))
+		content = append(content, []byte(err.Error()))
+		return &Response{
+			Website:     site,
+			Code:        http.StatusGatewayTimeout,
+			Duration:    elapsed,
+			Content:     content,
+			Certificate: certificate,
+		}, fmt.Errorf("cannot fetch website %s: %w", site.Name, err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+	bytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if site.Regex != "" {
+		content = getContent(site.Regex, bytes)
 	}
 
 	return &Response{
