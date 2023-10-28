@@ -47,8 +47,20 @@ func fetchWebsite(client *http.Client, site config.Website) (*Response, error) {
 	elapsed := time.Since(start).Seconds()
 
 	var content [][]byte
-	statusCode := resp.StatusCode
+	statusCode := http.StatusGatewayTimeout
 	certificate := "正常"
+	if err != nil {
+		content = append(content, []byte("Error"))
+		content = append(content, []byte(err.Error()))
+		return &Response{
+			Website:     site,
+			Code:        statusCode,
+			Duration:    elapsed,
+			Content:     content,
+			Certificate: certificate,
+		}, fmt.Errorf("cannot fetch website %s: %w", site.Name, err)
+	}
+	defer func() { _ = resp.Body.Close() }()
 	// check ssl certificate expired
 	for _, cert := range resp.TLS.PeerCertificates {
 		if !cert.NotAfter.After(time.Now()) {
@@ -61,18 +73,7 @@ func fetchWebsite(client *http.Client, site config.Website) (*Response, error) {
 			certificate = "过期"
 		}
 	}
-	if err != nil {
-		content = append(content, []byte("Error"))
-		content = append(content, []byte(err.Error()))
-		return &Response{
-			Website:     site,
-			Code:        http.StatusGatewayTimeout,
-			Duration:    elapsed,
-			Content:     content,
-			Certificate: certificate,
-		}, fmt.Errorf("cannot fetch website %s: %w", site.Name, err)
-	}
-	defer func() { _ = resp.Body.Close() }()
+	statusCode = resp.StatusCode
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
